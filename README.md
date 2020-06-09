@@ -93,14 +93,16 @@ In case you have trouble:
 	        ${TARGETS}
 	        PROPERTIES
 	        COMPILE_FLAGS -Wall
-	        RUNTIME_OUTPUT_DIRECTORY lib
+	        ARCHIVE_OUTPUT_DIRECTORY lib
 	        EXCLUDE_FROM_ALL off
 	        DEPENDS other_target)
 
 > This will build 2 static libraries `lib/libnameA.a` and `lib/libnameB.a`.
+>
+> Please note the use of the property `ARCHIVE_OUTPUT_DIRECTORY`.
 
 * `COMPILE_FLAGS`: add flags for the compilation.
-* `RUNTIME_OUTPUT_DIRECTORY`: specify the path to the directory where to create the targets (`libnameA.a`, `libnameB.a`).
+* `ARCHIVE_OUTPUT_DIRECTORY`: specify the path to the directory where to create the targets (`libnameA.a`, `libnameB.a`).
 * `EXCLUDE_FROM_ALL`: tell whether the target must be compiled when building _all_, or not.
 * `DEPENDS`: specify a dependency. The target `other_target` is required to build the listed targets (`libnameA.a` and `libnameB.a`).
 

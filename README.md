@@ -275,3 +275,6 @@ You want the file "executables/date.h" to be (re)generated, even if it already e
 
 	echo | gcc -E -Wp,-v -
 
+### Good links
+
+* [CMake FAQ](https://gitlab.kitware.com/cmake/community/-/wikis/FAQ)

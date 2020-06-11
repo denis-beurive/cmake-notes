@@ -240,30 +240,33 @@ So, we need to:
 * Run `date.exe executables/date.h`.
 * Compile all the executables that include `date.h`.
 
+Declare that target "data.exe"
 
-
-    # Declare that target "data.exe"
     add_executable(date.exe executables/date.c)
     set_target_properties(
             date.exe
             PROPERTIES
             RUNTIME_OUTPUT_DIRECTORY bin)
 
-    # Define a target name "date" (cmake <target>) that only runs a command.
+Define a target name "date" (cmake <target>) that only runs a command.
+
     add_custom_target(date
             COMMAND bin/date.exe executables/date.h
             COMMENT "Create the header file 'date.h'"
     )
     add_dependencies(date date.exe) # Compile "date.c", if necessary.
     
-    # Add a target for an executable. 
+Add a target for an executable. 
+
     add_executable(the_executable
             executables/source1.c
             executables/source2.c
-            # You must add this source dependency if you want CLion to know about this file.
             executables/date.h)
 
-    # You want the file "executables/date.h" to be (re)generated, even if it already exists.
+> You must add the dependency `executables/date.h` if you want CLion to know about this file.
+
+You want the file "executables/date.h" to be (re)generated, even if it already exists.
+
     add_dependencies(the_executable.exe date)
 
 # ANNEXE

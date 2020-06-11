@@ -193,6 +193,78 @@ or:
 		COMMAND bash -c "rm -rf doc/*"
 		COMMAND bash -c "doxygen")
 
+### Create a source file at build time
+
+Scenario: you want to insert the date of the compilation into the executable you are building.
+
+One solution is to produce a header file that defines a constant which represents the date.
+For example, we can think of the header file `data.h`:
+
+    #ifndef DATE
+    #define DATE "2020-6-11 10:11:22"
+    #endif
+
+This header file gets included in all executables sources. And these codes use the constant `DATE`.
+
+To produce the header `date.h` we use a programme.
+For example, we can think of the program `date.c`:
+
+    #include <stdio.h>
+    #include <time.h>
+    
+    int main(int argc, char *argv[])
+    {
+        if (2 != argc) {
+            printf("Usage: %s <output file>\n", argv[0]);
+            return 1;
+        }
+    
+        time_t t = time(NULL);
+        struct tm tm = *localtime(&t);
+    
+        FILE *fd = fopen(argv[1], "w");
+        if (NULL == fd) {
+            fprintf(stderr, "Cannot open the file <%s> for writing.\n", argv[1]);
+            return 1;
+        }
+        fprintf(fd, "#ifndef DATE\n");
+        fprintf(fd,"#define DATE \"%d-%02d-%02d %02d:%02d:%02d\"\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+        fprintf(fd, "#endif\n");
+        fclose(fd);
+        return 0;
+    }
+
+So, we need to:
+
+* Compile `data.c` into `date.exe`.
+* Run `date.exe executables/date.h`.
+* Compile all the executables that include `date.h`.
+
+
+    # Declare that target "data.exe"
+    add_executable(date.exe executables/date.c)
+    set_target_properties(
+            date.exe
+            PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY bin)
+
+    # Define a target name "date" (cmake <target>) that only runs a command.
+    add_custom_target(date
+            COMMAND bin/date.exe executables/date.h
+            COMMENT "Create the header file 'date.h'"
+    )
+    add_dependencies(date date.exe) # Compile "date.c", if necessary.
+    
+    # Add a target for an executable. 
+    add_executable(the_executable
+            executables/source1.c
+            executables/source2.c
+            # You must add this source dependency if you want CLion to know about this file.
+            executables/date.h)
+
+    # You want the file "executables/date.h" to be (re)generated, even if it already exists.
+    add_dependencies(the_executable.exe date)
+
 # ANNEXE
 
 ### Get the compiler list of search paths for headers and libraries

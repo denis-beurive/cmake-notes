@@ -236,38 +236,50 @@ For example, we can think of the program `date.c`:
 
 So, we need to:
 
-* Compile `data.c` into `date.exe`.
-* Run `date.exe executables/date.h`.
+* Compile `src/data.c` into `bin/date.exe`.
+* Run `bin/date.exe src/date.h`.
 * Compile all the executables that include `date.h`.
 
-Declare that target "data.exe"
+Declare that target `data.exe`. This will produces `date.exe` from `src/data.c`.
 
-    add_executable(date.exe executables/date.c)
+    add_executable(date.exe src/date.c)
     set_target_properties(
             date.exe
             PROPERTIES
             RUNTIME_OUTPUT_DIRECTORY bin)
 
-Define a target name "date" (cmake <target>) that only runs a command.
+Define a target name "date" (cmake <target>) that only runs the command that creates the header file `src/date.h`.
 
     add_custom_target(date
-            COMMAND bin/date.exe executables/date.h
-            COMMENT "Create the header file 'date.h'"
+            COMMAND bin/date.exe src/date.h
+            COMMENT "Create the header file 'src/date.h'"
     )
-    add_dependencies(date date.exe) # Compile "date.c", if necessary.
+    add_dependencies(date date.exe) # Compile "src/date.c", if necessary.
+    
+> Please note that the recipe for target `date` is executed **unconditionally**
+> (whenever CMAKE encounters a target that depends on it).
     
 Add a target for an executable. 
 
-    add_executable(the_executable
-            executables/source1.c
-            executables/source2.c
-            executables/date.h)
+    add_executable(the_executable.exe
+            src/source1.c
+            src/source2.c
+            src/date.h)
 
-> You must add the dependency `executables/date.h` if you want CLion to know about this file.
+> Please note that the executable depends on `src/date.h`. This dependency is important
+> for two reasons:
+> * you want the executable to be (re)compiled whenever the file `src/date.h` changes.
+>   And keep in mind that `src/date.h` is regenerated **unconditionally** upon all CMAKE execution.
+> * you must add the dependency `src/date.h` if you want CLion to know about this file. 
 
-You want the file "executables/date.h" to be (re)generated, even if it already exists.
+You want the file `src/date.h` to be **unconditionally** (re)generated (even if it already exists).
 
     add_dependencies(the_executable.exe date)
+    
+> `the_executable.exe` depends on `date`.
+> `date` recipe is executed unconditionally
+> => `src/date.h` is (re)generated unconditionally
+> => `the_executable.exe` is (re)generated unconditionally
 
 # ANNEXE
 

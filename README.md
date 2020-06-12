@@ -240,7 +240,7 @@ So, we need to:
 * Run `bin/date.exe src/date.h`.
 * Compile all the executables that include `date.h`.
 
-Declare that target `data.exe`. This will produces `date.exe` from `src/data.c`.
+Declare the target `data.exe`. This will produces `date.exe` from `src/data.c`.
 
     add_executable(date.exe src/date.c)
     set_target_properties(

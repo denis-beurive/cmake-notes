@@ -198,7 +198,7 @@ or:
 Scenario: you want to insert the date of the compilation into the executable you are building.
 
 One solution is to produce a header file that defines a constant which represents the date.
-For example, we can think of the header file `data.h`:
+For example, we can think of the header file `src/data.h`:
 
     #ifndef DATE
     #define DATE "2020-6-11 10:11:22"
@@ -206,8 +206,8 @@ For example, we can think of the header file `data.h`:
 
 This header file gets included in all executables sources. And these codes use the constant `DATE`.
 
-To produce the header `date.h` we use a programme.
-For example, we can think of the program `date.c`:
+To produce the header `src/date.h` we use a programme.
+For example, we can think of the program `src/date.c`:
 
     #include <stdio.h>
     #include <time.h>

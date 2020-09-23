@@ -4,6 +4,10 @@
 
 	set(CMAKE_VERBOSE_MAKEFILE off)
 
+### Compile with DEGUG support
+
+    set(CMAKE_BUILD_TYPE Debug)
+
 ### Tell the linker to use static libraries
 
 	set(CMAKE_LINK_SEARCH_START_STATIC on)
@@ -31,6 +35,10 @@
 ### Add -D define flags to the compilation of source files
 
 	add_definitions(-DDEF1 -DDEF2 ...) 
+
+### Set compiler flags
+
+    set(C_FLAGS "-Wall -Wuninitialized -Wmissing-include-dirs -Wextra -Wconversion -Werror -Wfatal-errors -Wformat")
 
 ### Test the operating system
 
@@ -82,7 +90,7 @@ In case you have trouble:
 	cmake --debug-trycompile .
 	cat CMakeFiles/CMakeError.log 
 
-### Declare a target library
+### Declare a target static library
 
 	add_library(nameA STATIC sourceA1 sourceA2 ...) # => libnameA.a
 	add_library(nameB STATIC sourceB1 sourceB2 ...) # => libnameB.a
@@ -105,6 +113,36 @@ In case you have trouble:
 * `ARCHIVE_OUTPUT_DIRECTORY`: specify the path to the directory where to create the targets (`libnameA.a`, `libnameB.a`).
 * `EXCLUDE_FROM_ALL`: tell whether the target must be compiled when building _all_, or not.
 * `DEPENDS`: specify a dependency. The target `other_target` is required to build the listed targets (`libnameA.a` and `libnameB.a`).
+
+### Create a static library with relocatable code
+
+You have to set the property `POSITION_INDEPENDENT_CODE`. For example:
+
+    add_library(string STATIC src/lib/libstring.c src/lib/libstring.h)
+    set_target_properties(
+            string
+            PROPERTIES
+            COMPILE_FLAGS -Wall
+            POSITION_INDEPENDENT_CODE ON
+            ARCHIVE_OUTPUT_DIRECTORY lib
+            EXCLUDE_FROM_ALL off)
+
+> This is equivalent to the option `-fPic`.
+
+### Create a shared library
+
+Use the keyword `SHARED`. For example:
+
+    add_library(parser001 SHARED src/lib/parsers/parser001.c src/lib/parsers/parser.h)
+    add_dependencies(parser001 string)
+    target_link_libraries(parser001 string pcre2-8)
+    set_target_properties(
+            parser001
+            PROPERTIES
+            COMPILE_FLAGS -Wall
+            POSITION_INDEPENDENT_CODE ON
+            LIBRARY_OUTPUT_DIRECTORY parsers
+            EXCLUDE_FROM_ALL off)
 
 ### Declare a target executable
 

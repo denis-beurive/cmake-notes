@@ -51,7 +51,9 @@
 	    message( FATAL_ERROR "Unsupported OS ${CMAKE_SYSTEM}" )
 	endif()
 
-### Test the presence of a header files
+### Test the presence of headers and libraries
+
+#### Test the presence of a header files
 
 Here, we look for the ChilKat header files:
 
@@ -73,7 +75,26 @@ In case you have trouble:
 	cmake --debug-trycompile .
 	cat CMakeFiles/CMakeError.log 
 
-### Test the presence of libraries
+Another way to perform the test _on a single file_:
+
+	message("Path to ODPI-C headers (ODPIC_INCLUDE_PATH): $ENV{ODPIC_INCLUDE_PATH} (path not necessarily used)")
+	message("Try to find the header file <dip.h> without using the environment variable ODPIC_INCLUDE_PATH")
+	find_path(DIR_HEADER_ODPIC dpi.h)
+	if(NOT DIR_HEADER_ODPIC)
+	    message("WARNING: ODPI-C header files not found. Please configure the environment variable ODPIC_INCLUDE_PATH.")
+	    if(DEFINED ENV{ODPIC_INCLUDE_PATH})
+	        message("ODPIC_INCLUDE_PATH is defined ($ENV{ODPIC_INCLUDE_PATH})")
+	        include_directories(${ODPIC_INCLUDE_PATH})
+	    else()
+	        message(FATAL_ERROR "ODPIC_INCLUDE_PATH is not defined. The build cannot be done.")
+	    endif()
+	else()
+	    message("OK: ODPI-C header files found (in directory ${DIR_HEADER_ODPIC})")
+	endif()
+
+> Here, we use the function `find_path` instead of `CHECK_INCLUDE_FILES`. And we start by looking for the file without using the path that is given by the environment variable. If we can't find it, then we set the path that has been configured within the environment variable (and hope that this path will help).
+
+#### Test the presence of libraries
 
 Here, we look for the library `libchilkat-9.5.0.a`:
 
@@ -89,6 +110,25 @@ In case you have trouble:
 	rm CMakeCache.txt
 	cmake --debug-trycompile .
 	cat CMakeFiles/CMakeError.log 
+
+Another way to perform the test:
+
+	message("Path to ODPI-C library (ODPIC_LIBRARY_PATH): $ENV{ODPIC_LIBRARY_PATH} (path not necessarily used)")
+	message("Try to find the library <odpic> without using the environment variable ODPIC_LIBRARY_PATH")
+	find_library(DIR_LIB_ODPIC odpic)
+	if(NOT DIR_LIB_ODPIC)
+	    message("WARNING: ODPI-C library not found. Please configure the environment variable ODPIC_LIBRARY_PATH.")
+	    if(DEFINED ENV{ODPIC_LIBRARY_PATH})
+	        message("ODPIC_LIBRARY_PATH is defined ($ENV{ODPIC_LIBRARY_PATH})")
+	        link_directories(${ODPIC_LIBRARY_PATH})
+	    else()
+	        message(FATAL_ERROR "ODPIC_LIBRARY_PATH is not defined. The build cannot be done.")
+	    endif()
+	else()
+	    message("OK: ODPI-C library found (file ${DIR_LIB_ODPIC})")
+	endif()
+
+> Here, we start looking for the library without using the environment variable (that should give the path to the directory that contains the library). If we can't find it, then we set the path that has been configured within the environment variable (and hope that this path will help).
 
 ### Declare a target static library
 

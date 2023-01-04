@@ -369,6 +369,19 @@ echo | gcc -E -Wp,-v - | grep -v "# "
 * -E: Stop after the preprocessing stage; do not run the compiler proper. The output is in the form of preprocessed source code, which is sent to the standard output. Input files which don't require preprocessing are ignored.
 * -Wp: You can use `-Wp,option` to bypass the compiler driver and pass option directly through to the preprocessor. 
 
+### CLION remote mode
+
+You may experience the following problem while using CLION in remote mode.
+* CMAKE is well configured.
+* The project compiles.
+* But within the CLION editor, a header file cannot be found.
+
+In this case, you probably need to "resync with remote hosts".
+
+`Tools` => `Resync with remote hosts`
+
+> See [Resync header search paths](https://www.jetbrains.com/help/clion/remote-projects-support.html#resync)
+
 ### Good links
 
 * [CMake FAQ](https://gitlab.kitware.com/cmake/community/-/wikis/FAQ)

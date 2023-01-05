@@ -16,6 +16,14 @@
 
 	${CMAKE_BINARY_DIR}
 
+### Test whether an environment variable is set ot not
+
+	if (DEFINED ENV{ODPIC_INCLUDE_PATH})
+	...
+	endif()
+
+> WARNING: WARNING: this is counter-intuitive, pay attention. We did not write `$ENV{ODPIC_INCLUDE_PATH}` (no `$`).
+
 ### Print an informative message
 
 	message("message to print")
@@ -51,6 +59,40 @@
 	    message( FATAL_ERROR "Unsupported OS ${CMAKE_SYSTEM}" )
 	endif()
 
+### Run a script given from the standard input
+
+```bash
+cmake -P /dev/stdin <<<'MESSAGE(${CMAKE_ROOT})'
+```
+
+> This trick can be used to quickly test an element of syntax.
+
+More elaborared examples:
+
+```bash
+cmake -P /dev/stdin <<<cat<<'EOF'
+IF(DEFINED ENV{MYVAR})
+    MESSAGE(STATUS "MYVAR env seen: --[$ENV{MYVAR}]--")
+ELSE()
+    MESSAGE(STATUS "MYVAR env not seen")
+ENDIF()
+EOF
+```
+
+=> `-- MYVAR env not seen`
+
+```bash
+MYVAR=123 cmake -P /dev/stdin <<<cat<<'EOF'
+IF(DEFINED ENV{MYVAR})
+    MESSAGE(STATUS "MYVAR env seen: --[$ENV{MYVAR}]--")
+ELSE()
+    MESSAGE(STATUS "MYVAR env not seen")
+ENDIF()
+EOF
+```
+
+=> `-- MYVAR env seen: --[123]--`
+
 ### Test the presence of headers and libraries
 
 #### Test the presence of a header files
@@ -77,22 +119,28 @@ In case you have trouble:
 
 Another way to perform the test _on a single file_:
 
-	message("Path to ODPI-C headers (ODPIC_INCLUDE_PATH): $ENV{ODPIC_INCLUDE_PATH} (path not necessarily used)")
-	message("Try to find the header file <dip.h> without using the environment variable ODPIC_INCLUDE_PATH")
-	find_path(DIR_HEADER_ODPIC dpi.h)
-	if(NOT DIR_HEADER_ODPIC)
-	    message("WARNING: ODPI-C header files not found. Please configure the environment variable ODPIC_INCLUDE_PATH.")
-	    if(DEFINED ENV{ODPIC_INCLUDE_PATH})
-	        message("ODPIC_INCLUDE_PATH is defined ($ENV{ODPIC_INCLUDE_PATH})")
-	        include_directories($ENV{ODPIC_INCLUDE_PATH})
-	    else()
-	        message(FATAL_ERROR "ODPIC_INCLUDE_PATH is not defined. The build cannot be done.")
-	    endif()
-	else()
-	    message("OK: ODPI-C header files found (in directory ${DIR_HEADER_ODPIC})")
-	endif()
+	# Check that all required header files are available.
+	# 1. if environment variables are set, then use them to find the header files.
+	# 2. otherwise, try to find the header files while following the default system paths.
 
-> Here, we use the function `find_path` instead of `CHECK_INCLUDE_FILES`. And we start by looking for the file without using the path that is given by the environment variable. If we can't find it, then we set the path that has been configured within the environment variable (and hope that this path will help).
+	message("### Check the availability of the header file \"dpi.h\"")
+	if (DEFINED ENV{ODPIC_INCLUDE_PATH})
+	    message("ODPIC_INCLUDE_PATH is set: $ENV{ODPIC_INCLUDE_PATH}. Check this location.")
+	    find_path(DIR_HEADER_ODPIC dpi.h HINTS ENV ODPIC_INCLUDE_PATH)
+	    if(NOT DIR_HEADER_ODPIC)
+	        message(FATAL_ERROR "Header file not found at the provided location ($ENV{ODPIC_INCLUDE_PATH})")
+	    endif()
+	    message("Header file found at this location!")
+	    include_directories($ENV{ODPIC_INCLUDE_PATH})
+	else()
+	    message("ODPIC_INCLUDE_PATH is not set. Try to use default system paths.")
+	    find_path(DIR_HEADER_ODPIC dpi.h)
+	    if(NOT DIR_HEADER_ODPIC)
+	        message(FATAL_ERROR "Header file definitively not found.")
+	    endif()
+	    message("Header file found at default system path configuration (${DIR_HEADER_ODPIC})")
+	endif()
+	message("")
 
 #### Test the presence of libraries
 
@@ -113,22 +161,28 @@ In case you have trouble:
 
 Another way to perform the test:
 
-	message("Path to ODPI-C library (ODPIC_LIBRARY_PATH): $ENV{ODPIC_LIBRARY_PATH} (path not necessarily used)")
-	message("Try to find the library <odpic> without using the environment variable ODPIC_LIBRARY_PATH")
-	find_library(DIR_LIB_ODPIC odpic)
-	if(NOT DIR_LIB_ODPIC)
-	    message("WARNING: ODPI-C library not found. Please configure the environment variable ODPIC_LIBRARY_PATH.")
-	    if(DEFINED ENV{ODPIC_LIBRARY_PATH})
-	        message("ODPIC_LIBRARY_PATH is defined ($ENV{ODPIC_LIBRARY_PATH})")
-	        link_directories($ENV{ODPIC_LIBRARY_PATH})
-	    else()
-	        message(FATAL_ERROR "ODPIC_LIBRARY_PATH is not defined. The build cannot be done.")
-	    endif()
-	else()
-	    message("OK: ODPI-C library found (file ${DIR_LIB_ODPIC})")
-	endif()
+	# Check that all required libraries are available.
+	# 1. if environment variables are set, then use them to find the libraries.
+	# 2. otherwise, try to find the library while following the default system paths.
 
-> Here, we start looking for the library without using the environment variable (that should give the path to the directory that contains the library). If we can't find it, then we set the path that has been configured within the environment variable (and hope that this path will help).
+	message("### Check the availability of the library \"libodpic\"")
+	if (DEFINED ENV{ODPIC_LIBRARY_PATH})
+	    message("ODPIC_LIBRARY_PATH is set: $ENV{ODPIC_LIBRARY_PATH}. Check this location.")
+	    find_library(DIR_LIB_ODPIC odpic HINTS ENV ODPIC_LIBRARY_PATH)
+	    if(NOT DIR_LIB_ODPIC)
+	        message(FATAL_ERROR "Library not found at the provided location ($ENV{ODPIC_LIBRARY_PATH})")
+	    endif()
+	    message("Library found at this location!")
+	    link_directories($ENV{ODPIC_LIBRARY_PATH})
+	else()
+	    message("ODPIC_LIBRARY_PATH is not set. Try to use default system paths.")
+	    find_library(DIR_LIB_ODPIC odpic)
+	    if(NOT DIR_LIB_ODPIC)
+	        message(FATAL_ERROR "Library definitively not found.")
+	    endif()
+	    message("Library found at default system path configuration (${DIR_LIB_ODPIC})")
+	endif()
+	message("")
 
 ### Declare a target static library
 

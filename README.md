@@ -369,18 +369,36 @@ echo | gcc -E -Wp,-v - | grep -v "# "
 * -E: Stop after the preprocessing stage; do not run the compiler proper. The output is in the form of preprocessed source code, which is sent to the standard output. Input files which don't require preprocessing are ignored.
 * -Wp: You can use `-Wp,option` to bypass the compiler driver and pass option directly through to the preprocessor. 
 
-### CLION remote mode
+### CLION troubleshooting while using the remote mode
+
+#### Header file not found
 
 You may experience the following problem while using CLION in remote mode.
+
 * CMAKE is well configured.
 * The project compiles.
 * But within the CLION editor, a header file cannot be found.
+
+The reason for this error is that CLION did not upload the missing header file from the Docker container.
+You need to synchronise the local copy of the build environment with the one on the container.
+
+![](doc/clion-header-not-found.png)
+
+> In the screenshot above, CLION cannot find the header file "`curl.h`".
 
 In this case, you probably need to "resync with remote hosts".
 
 `Tools` => `Resync with remote hosts`
 
-> See [Resync header search paths](https://www.jetbrains.com/help/clion/remote-projects-support.html#resync)
+See this document: [Resync header search paths](https://www.jetbrains.com/help/clion/remote-projects-support.html#resync)
+
+#### You changed the CMAKE specification file (CMakeLists.txt), but "nothing happens"
+
+You need to reload the CMake project: `Tools` => `CMake` => `Reload CMake Project`
+
+#### You did everything described above, but the problem persists
+
+You may need to reset the cache and reload the CMake project: `Tools` => `CMake` => `Reset Cache and Reload Project`
 
 ### Good links
 

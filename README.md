@@ -278,6 +278,18 @@ Use the keyword `SHARED`. For example:
 * `EXCLUDE_FROM_ALL`: tell whether the target must be compiled when building _all_, or not.
 * `DEPENDS`: specify a dependency. The target `dependency3` is required to build the listed targets (`executableA` and `executableB`).
 
+Please note the use of the bloc below:
+
+```
+	target_link_libraries(executableA
+        curl
+        dependency1
+        dependency2)
+```
+
+* We link the executable with the "external" Curl library.
+* We link the executable with the libraries that were previously compiled (`dependency1` and `dependency2`).
+
 ### Define the "test" rule
 
 	enable_testing()

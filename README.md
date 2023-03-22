@@ -523,6 +523,39 @@ ADD_CUSTOM_COMMAND(
 ADD_EXECUTABLE(cmake_tester src/main.c)
 ```
 
+### Dealing with CLION builds organisation
+
+If you build a DEBUG release, CLION will work in a subdirectory. For example:
+
+```bash
+$ tree tmp.azlAwkqXtM
+tmp.azlAwkqXtM
+|-- CMakeLists.txt
+|-- Makefile
+|-- bin
+|-- cmake-build-debug
+|-- cmake-build-debug-ubuntu-jammy-dev
+|   |-- CMakeCache.txt
+|   |-- Makefile
+|   |-- bin
+|   `-- lib
+`-- tools
+    |-- concat-configure.pl
+    `-- concat.pl
+```
+
+The Makefile that will processed is the one located within the directory 
+`cmake-build-debug-ubuntu-jammy-dev`. And, as you can see, the directory `tools` (not `src`) is not present in this directory. This may cause problems. In order to work around this weird behavior, you can use a path prefix (before all paths).
+
+```cmake
+if (EXISTS ${CMAKE_BINARY_DIR}/tools)
+    set(PREFIX_PATH .)
+else()
+    set(PREFIX_PATH ..)
+endif()
+message( NOTICE "Prefix path is \"${PREFIX_PATH}\" (used for *CLION* builds only)"  )
+```
+
 # ANNEXE
 
 ### Get the compiler list of search paths for headers and libraries

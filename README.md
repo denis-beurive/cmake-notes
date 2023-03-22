@@ -67,7 +67,7 @@ add_definitions(-DDEF1 -DDEF2 ...)
 ### Set compiler flags
 
 ```cmake
-set(C_FLAGS "-Wall -Wuninitialized -Wmissing-include-dirs -Wextra -Wconversion -Werror -Wfatal-errors -Wformat")
+add_definitions(-Wall -Wuninitialized -Wmissing-include-dirs -Wextra -Wconversion -Werror -Wfatal-errors -Wformat)
 ```
 
 ### Test the operating system

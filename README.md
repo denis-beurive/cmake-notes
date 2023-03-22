@@ -339,6 +339,8 @@ or:
 
 ### Create a source file at build time
 
+#### You want the source file to be created unconditionally (even if it already exists)
+
 Scenario: you want to insert the date of the compilation into the executable you are building.
 
 One solution is to produce a header file that defines a constant which represents the date.
@@ -392,7 +394,7 @@ Declare the target `data.exe`. This will produce `date.exe` from `src/data.c`.
             PROPERTIES
             RUNTIME_OUTPUT_DIRECTORY bin)
 
-Define a target name "date" (cmake <target>) that only runs the command that creates the header file `src/date.h`.
+Define a target name "date" (`make <target>`) that only runs the command that creates the header file `src/date.h`.
 
     add_custom_target(date
             COMMAND bin/date.exe src/date.h
@@ -421,9 +423,38 @@ You want the file `src/date.h` to be **unconditionally** (re)generated (even if 
     add_dependencies(the_executable.exe date)
     
 > `the_executable.exe` depends on `date`.
-> `date` recipe is executed unconditionally
+> `date` recipe is executed unconditionally (because `date` is not a file)
 > => `src/date.h` is (re)generated unconditionally
 > => `the_executable.exe` is (re)generated unconditionally
+
+#### You want the source file to be created "when appropriate"
+
+Use the instruction `ADD_CUSTOM_COMMAND`.
+
+```cmake
+# rm -f cmake_tester src/main.c && cmake . && make
+cmake_minimum_required(VERSION 3.24)
+project(cmake_tester C)
+
+set(CMAKE_C_STANDARD 99)
+
+# DEPENDS: whenever `code-gen.pl` is modified, "src/main.c" is regenerated.
+# WORKING_DIRECTORY: useful option. Specify the working directory.
+#
+# WARNING: you don't need to add "bash -c" before the commands to execute.
+#          ex: bash -c "echo \"Generate the file main.c\""
+#          If you do that, you may face strange behaviors.
+
+ADD_CUSTOM_COMMAND(
+        OUTPUT src/main.c
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        DEPENDS code-gen.pl
+        COMMAND echo "Generate the file main.c"
+        COMMAND perl code-gen.pl > src/main.c)
+
+# If the file "src/main.c" does not exist, then it will be generated.
+ADD_EXECUTABLE(cmake_tester src/main.c)
+```
 
 # ANNEXE
 
@@ -445,8 +476,7 @@ You may experience the following problem while using CLION in remote mode.
 * The project compiles.
 * But within the CLION editor, a header file cannot be found.
 
-The reason for this error is that CLION did not upload the missing header file from the Docker container.
-You need to synchronise the local copy of the build environment with the one on the container.
+The reason for this error is that CLION did not upload the missing header file from the Docker container. You need to synchronise the local copy of the build environment with the one on the container.
 
 ![](doc/clion-header-not-found.png)
 

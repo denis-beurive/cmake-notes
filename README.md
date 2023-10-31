@@ -18,6 +18,16 @@ set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_LINK_SEARCH_START_STATIC on)
 ```
 
+### Print messages
+
+You can use the [CMakePrintHelpers module](https://cmake.org/cmake/help/latest/module/CMakePrintHelpers.html).
+
+```cmake
+include(CMakePrintHelpers)
+set(LOCAL_SRC_DIRECTORY "${CMAKE_SOURCE_DIR}/src")
+cmake_print_variables(LOCAL_SRC_DIRECTORY)
+```
+
 ### The path to the top level of the build / source tree
 
 Be aware of the difference between BUILD and SOURCE trees.

@@ -53,6 +53,25 @@ set(LOCAL_SRC_DIRECTORY "${CMAKE_SOURCE_DIR}/src")
 set(LOCAL_TESTS_BIN_DIRECTORY "${CMAKE_BINARY_DIR}/tests/bin")
 ```
 
+### Define a list of files
+
+```cmake
+set(LIB_LOGGER_SRC
+        src/file1.c
+        src/file1.h
+)
+
+set(LIB_JSON_SRC
+        src/file2.c
+        src/file2.h
+)
+
+list(APPEND ALL_SRC ${LIB_LOGGER_SRC} ${LIB_JSON_SRC})
+
+add_library(mylib STATIC ${ALL_SRC})
+# ...
+```
+
 ### Test whether an environment variable is set ot not
 
 ```cmake

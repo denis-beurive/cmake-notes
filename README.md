@@ -31,26 +31,26 @@ cmake_print_variables(LOCAL_SRC_DIRECTORY)
 ### The path to the top level of the build / source tree
 
 Be aware of the difference between BUILD and SOURCE trees.
-* If you want to reference an element that is involved _during the build process_ (ex: a source code, a script...), then you reference the source tree (thus, must use `CMAKE_SOURCE_DIR`).
-* If you want to reference a _destination of the build process_ (ex: a directory where to put an executable or a library), then you reference the source tree (thus, must use `CMAKE_BINARY_DIR`).
 
-Build tree:
+* If you want to reference an element that is involved _during the build process_ (ex: a source code, a script...), then you reference the **source tree** (thus, must use `CMAKE_SOURCE_DIR`).
+* If you want to reference a _destination of the build process_ (ex: a directory where to put an executable or a library), then you reference the **build tree** (thus, must use `CMAKE_BINARY_DIR`).
 
-```cmake
-${CMAKE_BINARY_DIR}
-```
-
-Source tree:
-
-```cmake
-${CMAKE_SOURCE_DIR}
-```
+* Source tree: `${CMAKE_SOURCE_DIR}`
+* Build tree: `${CMAKE_BINARY_DIR}`
 
 Examples:
 
 ```cmake
-set(LOCAL_SRC_DIRECTORY "${CMAKE_SOURCE_DIR}/src")
-set(LOCAL_TESTS_BIN_DIRECTORY "${CMAKE_BINARY_DIR}/tests/bin")
+include(CMakePrintHelpers)
+cmake_print_variables(CMAKE_SOURCE_DIR)
+cmake_print_variables(CMAKE_BINARY_DIR)
+```
+
+Result:
+
+```
+-- CMAKE_SOURCE_DIR="C:/Users/denis/Documents/github/aes"
+-- CMAKE_BINARY_DIR="C:/Users/denis/Documents/github/aes/cmake-build-debug"
 ```
 
 ### Define a list of files

@@ -72,6 +72,13 @@ add_library(mylib STATIC ${ALL_SRC})
 # ...
 ```
 
+### Create a library that is only a collection of libraries
+
+Use the keyword `INTERFACE`.
+
+    add_library(collection INTERFACE)
+    target_link_libraries(collection INTERFACE lib_name1 lib_name2 lib_name3)
+
 ### Test whether an environment variable is set ot not
 
 ```cmake

@@ -121,9 +121,19 @@ add_definitions(-DDEF1 -DDEF2 ...)
 
 ### Set compiler flags
 
+Set compiler flags globally:
+
 ```cmake
 add_definitions(-Wall -Wuninitialized -Wmissing-include-dirs -Wextra -Wconversion -Werror -Wfatal-errors -Wformat)
 ```
+
+But, very often, you need to set specific compiler flags per targets :
+
+```cmake
+target_compile_options(logger PRIVATE -Wall -Wuninitialized -Wmissing-include-dirs -Wextra -Wconversion -Wunused-parameter -Wfatal-errors -Wformat)
+```
+
+> See this good explanation for PUBLIC, PRIVATE and INTERFACE: https://leimao.github.io/blog/CMake-Public-Private-Interface/
 
 ### Test the operating system
 
@@ -301,6 +311,8 @@ set_target_properties(
 * `EXCLUDE_FROM_ALL`: tell whether the target must be compiled when building _all_, or not.
 * `DEPENDS`: specify a dependency. The target `other_target` is required to build the listed targets (`libnameA.a` and `libnameB.a`).
 
+> You may replace the use of the property "`COMPILE_FLAGS`" by a call to "`target_compile_options`".
+
 ### Create a static library with relocatable code
 
 You have to set the property `POSITION_INDEPENDENT_CODE`. For example:
@@ -318,6 +330,8 @@ set_target_properties(
 
 > This is equivalent to the option `-fPic`.
 
+> You may replace the use of the property "`COMPILE_FLAGS`" by a call to "`target_compile_options`".
+
 ### Create a shared library
 
 Use the keyword `SHARED`. For example:
@@ -334,6 +348,8 @@ set_target_properties(
         LIBRARY_OUTPUT_DIRECTORY parsers
         EXCLUDE_FROM_ALL off)
 ```
+
+> You may replace the use of the property "`COMPILE_FLAGS`" by a call to "`target_compile_options`".
 
 ### Declare a target executable
 
@@ -377,6 +393,8 @@ set_target_properties(
 * `RUNTIME_OUTPUT_DIRECTORY`: specify the path to the directory where to create the targets (`executableA`, `executableB`).
 * `EXCLUDE_FROM_ALL`: tell whether the target must be compiled when building _all_, or not.
 * `DEPENDS`: specify a dependency. The target `dependency3` is required to build the listed targets (`executableA` and `executableB`).
+
+> You may replace the use of the property "`COMPILE_FLAGS`" by a call to "`target_compile_options`".
 
 Please note the use of the bloc below:
 
@@ -458,7 +476,7 @@ For example, we can think of the header file `src/data.h`:
 
 ```c
 #ifndef DATE
-#define DATE "2020-6-11 10:11:22"
+#define DATE "2020-6-11 10:11:22 0000 (UTC)"
 #endif
 ```
 
@@ -487,7 +505,15 @@ int main(int argc, char *argv[])
         return 1;
     }
     fprintf(fd, "#ifndef DATE\n");
-    fprintf(fd,"#define DATE \"%d-%02d-%02d %02d:%02d:%02d\"\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+    fprintf(fd, "#define DATE \"%d-%02d-%02d %02d:%02d:%02d %04ld (%s)\"\n",
+            tm.tm_year + 1900,
+            tm.tm_mon + 1,
+            tm.tm_mday,
+            tm.tm_hour,
+            tm.tm_min,
+            tm.tm_sec,
+            tm.tm_gmtoff,
+            tm.tm_zone);
     fprintf(fd, "#endif\n");
     fclose(fd);
     return 0;
@@ -548,6 +574,8 @@ add_dependencies(the_executable.exe date)
 > `date` recipe is executed unconditionally (because `date` is not a file)
 > => `src/date.h` is (re)generated unconditionally
 > => `the_executable.exe` is (re)generated unconditionally
+
+> More complete example: [here](version.md)
 
 #### You want the source file to be created "when appropriate"
 

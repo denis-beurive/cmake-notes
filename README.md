@@ -148,6 +148,18 @@ else()
 endif()
 ```
 
+### Test the host name
+
+```cmake
+cmake_host_system_information(RESULT HOST_NAME QUERY HOSTNAME)
+message("Hostname: ${HOST_NAME}")
+if (${HOST_NAME} MATCHES "test_srv*")
+    ...
+else()
+    ...
+endif()
+```
+
 ### Run a script given from the standard input
 
 ```bash
@@ -283,6 +295,14 @@ else()
     message("Library found at default system path configuration (${DIR_LIB_ODPIC})")
 endif()
 message("")
+```
+
+### Declare the path to a static library
+
+```cmake
+add_library(libodpic STATIC IMPORTED)
+set_target_properties(libodpic PROPERTIES IMPORTED_LOCATION /path/to/lib/libodpic.4.1.0.a)
+set_target_properties(libodpic PROPERTIES INTERFACE_INCLUDE_DIRECTORIES /path/to/include/directory)
 ```
 
 ### Declare a target static library
